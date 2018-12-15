@@ -5,8 +5,12 @@ const CloudinaryService = use('App/Services/CloudinaryService');
 
 class AssetController {
 
+    async form({ response }) {
+        return response.redirect('/form')
+    }
+
     async index() {
-        return await Assets.all()
+        return await Assets.find(1)
     }
 
     async mainImage({ request, response, session }) {
@@ -14,59 +18,76 @@ class AssetController {
         try {
 
             const cloudinaryResponse = await CloudinaryService.v2.uploader.upload(file.tmpPath, { folder: 'postsapp' });
-            
+
             const post = await Assets.find(1);
             post.mainImage = cloudinaryResponse.secure_url;
-            
+
             await post.save();
-            
-            session.flash({ success: 'Successfully added post' });
-            
+
+            session.flash({ notification: 'Image Utama Berhasil di Upload' });
+
             return response.redirect('back');
         } catch (e) {
-            
-            session.flash({ error: 'Error Uploading Image' });
-            
-            return response.redirect('/')
+            console.log(e)
+            session.flash({ notification: 'Gagal Upload Image' });
+
+            return response.redirect('back')
         }
     }
 
-    async backgroundColor({ request, response }) {
-        const post = await Assets.find(1);
-        post.backgroundColor = request.input('backgroundColor')
-        await post.save()
-        return response.redirect('/adminPage')
-    }
+    async backgroundImage({ request, response, session }) {
 
-   /*  async mainImage({ request, response }) {
-        const post = await Assets.find(1)
-
-        const Image = request.file('mainImage', {
-            types: ['image'],
-            size: '2mb',
-            fileName: 'mainImage.jpg',
+        const backgroundImage = request.file('backgroundImage', {
+            fileName: `background.jpg`,
         })
+        
+        try {
 
-        await Image.move(Helpers.tmpPath('assets'), {
-            name: 'mainImage.jpg',
-            overwrite: true
-        })
+            const backgroundResponse = await CloudinaryService.v2.uploader.upload(backgroundImage.tmpPath, { folder: 'backgroundImage' });
 
-        if (!Image.moved()) {
-            return Image.error()
+            const post = await Assets.find(1);
+            post.backgroundImage = backgroundResponse.secure_url;
+
+            await post.save()
+            session.flash({ notification: 'Berhasil Mengupload Background Image' });
+            return response.redirect('back')
+ 
+        } catch (e) {
+            session.flash({ notification: 'Error Uploading Image' });
+            console.log(e)
         }
-
-        post.mainImage = Image.fileName
-        await post.save()
-        return response.redirect('/adminPage')
     }
 
-    async ruleGame({ request, response }) {
+    /*  async mainImage({ request, response }) {
+         const post = await Assets.find(1)
+ 
+         const Image = request.file('mainImage', {
+             types: ['image'],
+             size: '2mb',
+             fileName: 'mainImage.jpg',
+         })
+ 
+         await Image.move(Helpers.tmpPath('assets'), {
+             name: 'mainImage.jpg',
+             overwrite: true
+         })
+ 
+         if (!Image.moved()) {
+             return Image.error()
+         }
+ 
+         post.mainImage = Image.fileName
+         await post.save()
+         return response.redirect('/adminPage')
+     } */
+
+    async ruleGame({ request, response, session }) {
         const post = await Assets.find(1)
         post.setRule = request.input('ruleGame')
         await post.save()
+        session.flash({ notification: 'Rule Game Berhasil di set' });
         return response.redirect('/adminPage')
-    } */
+    }
 }
 
 module.exports = AssetController

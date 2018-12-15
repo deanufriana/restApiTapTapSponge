@@ -27,6 +27,8 @@ Route.get('/api/adminPage', 'AdminPageController')
 
 
 Route.get('/api/asset', 'AssetController.index')
-Route.post('/post/backgroundColor', 'AssetController.backgroundColor')
+
+Route.post('/post/background', 'AssetController.backgroundImage')
+
 Route.post('/post/mainImage', 'AssetController.mainImage')
 Route.post('/post/ruleGame', 'AssetController.ruleGame')
